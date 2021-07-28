@@ -8,7 +8,7 @@ exports.up = async (knex) => {
       table.string('password', 200).notNullable()
       table.string('first_name', 128)
       table.string('last_name', 128)
-      table.string('email', 200).notNullable().unique()
+      table.string('email', 200).notNullable()
       table.boolean('isOwner')
       table.timestamps(false, true)
     })
@@ -63,7 +63,7 @@ exports.up = async (knex) => {
 
 exports.down = async (knex) => {
   await knex.schema
-    .dropTableIfExists('item_listing')
+    .dropTableIfExists('item_listings')
     .dropTableIfExists('items')
     .dropTableIfExists('locations')
     .dropTableIfExists('users')
