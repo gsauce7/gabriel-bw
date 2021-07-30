@@ -40,7 +40,7 @@ router.post('/login', (req, res) => {
                 const token = makeToken(user);
 
 
-                res.status(200).json({ message: "Welcome!", token, id: user.id });
+                res.status(200).json({ message: `${user.username} is back!`, token, id: user.id, first_name: user.first_name, last_name: user.last_name });
             } else {
                 res.status(401).json({ message: "You shall not pass!" });
             }

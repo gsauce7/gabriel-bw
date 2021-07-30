@@ -1,84 +1,82 @@
 const router = require('express').Router()
 const Items = require('./items-model')
+// const { restrict } = require('../users/users-middleware.js');
+const authenticate = require('../auth/auth-middleware.js');
 
-router.get('/', (req, res) => {
+router.get('/', authenticate, (req, res, next) => {
     Items.find()
         .then(item => {
             res.json(item)
         })
-        .catch(err => res.send(err))
+        .catch(next)
 })
 
-router.get('/:id', (req, res) => {
-    const id = req.params.id
+
+router.get('/:id', authenticate, (req, res, next) => {
+    const { id } = req.params;
 
     Items.findById(id)
-        .then(item => {
-            res.status(200).json(item);
+        .then((item) => {
+            if (item) {
+                res.status(200).json(item);
+            } else {
+                res.status(404).json({ message: `Could not find Item with id ${id}.` });
+            }
         })
-
-        .catch(err => {
-            res.status(500).json({ error: 'item not returned' })
-        })
+        .catch(next);
 })
 
-router.post('/', (req, res) => {
+router.post('/', authenticate, (req, res, next) => {
     const item = req.body
     Items.add(item)
         .then(item => {
             res.status(200).json(item)
         })
-        .catch(err => {
-            res.status(500).json({ error: 'there was a server error', err })
-        })
+        .catch(next)
 })
 
-router.put('/:id', (req, res) => {
+router.put('/:id', authenticate, (req, res, next) => {
     const changes = req.body
+    const { id } = req.params;
 
-    Items.update(req.params.id, changes)
+    Items.update(id, changes)
         .then(item => {
             if (item) {
                 Items.findById(req.params.id)
-                    .then(item => {
-                        res.status(200).json(item)
+                    .then(updatedItem => {
+                        res.status(200).json(
+                            {
+                                updatedItem,
+                                message: "item successfully updated",
+                            }
+                        );
                     })
-                    .catch(err => {
-                        res.status(500).json({
-                            error: 'there was a server error'
-                        })
-                    })
+                    .catch(next)
             } else {
-                res.status(404).json({
-                    error: 'item not found'
-                })
+                res.status(404).json({ message: 'Could not find item with given id' })
             }
         })
-        .catch(err => {
-            res.status(500).json({
-                error: 'there was a server error'
-            })
-        })
+        .catch(next)
 })
 
-router.delete('/:id', (req, res) => {
-    Items.remove(req.params.id)
-        .then(item => {
-            if (item) {
-                res.status(201).json({
-                    message: 'item deleted'
+
+
+router.delete('/:id', authenticate, (req, res, next) => {
+    const { id } = req.params;
+    Items.remove(id)
+        .then(deletedItem => {
+            if (deletedItem) {
+                res.json({
+                    message: `removed: ${deletedItem} successfully`
                 })
             } else {
                 res.status(404).json({
-                    error: 'item not found'
+                    error: 'item could not be deleted. given id not found in db'
                 })
             }
         })
-        .catch(err => {
-            res.status(500).json({
-                error: 'there was a server error'
-            })
-        })
+        .catch(next)
 })
+
 
 module.exports = router

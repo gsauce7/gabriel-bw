@@ -9,7 +9,23 @@ exports.seed = function (knex) {
             first_name: 'admin',
             last_name: 'admin',
             email: 'admin@admin.com',
+            isOwner: true,
+            isAdmin: true
+        },
+        {
+            username: 'ownertest',
+            password: bcrypt.hashSync("password"),
+            first_name: 'test',
+            last_name: 'owner',
+            email: 'test@owner.com',
             isOwner: true
+        },
+        {
+            username: 'usertest',
+            password: bcrypt.hashSync("password"),
+            first_name: 'test',
+            last_name: 'user',
+            email: 'test@user.com'
         },
     ])
 

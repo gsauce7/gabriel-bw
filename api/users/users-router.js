@@ -1,28 +1,28 @@
-const router = require("express").Router();
+const router = require('express').Router()
+const Users = require("./users-model");
+const restrict = require('../auth/auth-middleware'); // this needs to be a named function that checks for isAdmin
 
-const Users = require('./users-model.js');
 
-router.get("/", (req, res) => {
-
-  console.log("token", req.decodedToken);
-
-  Users.find()
-    .then(users => {
-      res.json(users);
-    })
-    .catch(err => res.send(err));
+router.get("/", restrict, async (req, res, next) => {
+  try {
+    res.json(await Users.find());
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.get('/:id', (req, res) => {
-  const id = req.params.id;
-  Users.findById(id)
-    .then(users => {
-      res.status(200).json(users);
-    })
+router.get('/:id', restrict, (req, res, next) => {
+  const { id } = req.params;
 
-    .catch(err => {
-      res.status(500).json({ error: 'user not returned' })
+  Users.findById(id)
+    .then((user) => {
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404).json({ message: `Could not find User with id ${id}.` });
+      }
     })
+    .catch(next);
 })
 
 

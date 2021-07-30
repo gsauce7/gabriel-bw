@@ -3,59 +3,121 @@ exports.up = async (knex) => {
 
     // USERS TABLE
     .createTable('users', table => {
-      table.increments() // id is auto generated
+      table.increments('id') // id is auto generated and does not need id name but I spell out the name anyway
       table.string('username', 200).notNullable().unique()
       table.string('password', 200).notNullable()
       table.string('first_name', 128)
       table.string('last_name', 128)
       table.string('email', 200).notNullable()
       table.boolean('isOwner')
+      table.boolean('isAdmin')
       table.timestamps(false, true)
     })
 
-
     // LOCATIONS TABLE
     .createTable('locations', table => {
-      table.increments()
-      table.string('location_name').notNullable().unique()
+      table.increments('id')
+      table.string('location_name', 200).notNullable().unique()
+      table.string('address', 200).unique()
+    })
+
+
+    // CATEGORIES TABLE
+    .createTable('categories', table => {
+      table.increments('id')
+      table.string('category_name', 200).notNullable().unique()
+      table.string('category_description', 200).unique()
+    })
+
+    // SUGGESTED PRICING TABLE
+    .createTable('suggested_pricing', table => {
+      table.increments('id')
+      table.decimal('price', 14, 2)
+      table.string('pricing_unit')
+      table.string('item_name', 200).unique()
+      table
+        .integer('location_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('locations')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+      table
+        .integer('category_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('categories')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
     })
 
 
     // ITEMS TABLE
     .createTable('items', table => {
-      table.increments()
+      table.increments('id')
       table.string('item_name', 128).notNullable()
       table.binary('image', 255)
       table.string('description', 255)
-      table.integer('price').notNullable()
-      table.integer('suggested_price')
-      table.string('category').notNullable().unique()
-    })
-
-    // ITEM LISTING TABLE
-    .createTable('item_listing', table => {
-      table.increments('item_listing_id')
-      table.integer('user_id') //FK
+      table
+        .integer('suggested_price_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('suggested_pricing')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+      table
+        .integer('category_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('categories')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+      table
+        .integer('user_id')
         .unsigned()
         .notNullable()
         .references('id')
         .inTable('users')
-        .onDelete('RESTRICT')
-        .onUpdate('RESTRICT')
-      table.integer('item_id') //FK
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+    })
+
+    // ITEM LISTING APPOINTMENT TABLE
+    .createTable('item_listings', table => {
+      table.increments('id')
+      table.binary('image', 255)
+      table.string('item_listing_description', 1024)
+      table.integer('quantity_available')
+      table.decimal('price', 14, 2)
+      table.string('pricing_unit')
+      table
+        .integer('user_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+      table
+        .integer('item_id')
         .unsigned()
         .notNullable()
         .references('id')
         .inTable('items')
-        .onDelete('RESTRICT')
-        .onUpdate('RESTRICT')
-      table.integer('location_id') //FK
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+      table
+        .integer('location_id')
         .unsigned()
         .notNullable()
         .references('id')
         .inTable('locations')
-        .onDelete('RESTRICT')
-        .onUpdate('RESTRICT')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
     })
 
 }
@@ -65,6 +127,8 @@ exports.down = async (knex) => {
   await knex.schema
     .dropTableIfExists('item_listings')
     .dropTableIfExists('items')
+    .dropTableIfExists('suggested_pricing')
+    .dropTableIfExists('categories')
     .dropTableIfExists('locations')
     .dropTableIfExists('users')
 }

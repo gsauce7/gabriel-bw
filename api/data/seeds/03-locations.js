@@ -2,7 +2,11 @@ exports.seed = function (knex) {
 
     return knex('locations').insert([
         {
-            location_name: "Jacaranda"
+            location_name: "Available Everywhere in Africa"
+        },
+        {
+            location_name: "Jacaranda",
+            address: "Test Address... 97006"
         },
         {
             location_name: "Greenfield"
