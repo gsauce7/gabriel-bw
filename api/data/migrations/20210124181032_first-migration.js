@@ -32,9 +32,9 @@ exports.up = async (knex) => {
     // SUGGESTED PRICING TABLE
     .createTable('suggested_pricing', table => {
       table.increments('id')
-      table.decimal('price', 14, 2)
+      table.decimal('suggested_price', 14, 2)
       table.string('pricing_unit')
-      table.string('item_name', 200).unique()
+      table.string('item_name', 200)
       table
         .integer('location_id')
         .unsigned()
@@ -84,16 +84,21 @@ exports.up = async (knex) => {
         .inTable('users')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
+      table
+        .integer('location_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('locations')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
     })
 
     // ITEM LISTING APPOINTMENT TABLE
     .createTable('item_listings', table => {
       table.increments('id')
-      table.binary('image', 255)
       table.string('item_listing_description', 1024)
-      table.integer('quantity_available')
       table.decimal('price', 14, 2)
-      table.string('pricing_unit')
       table
         .integer('user_id')
         .unsigned()
@@ -111,13 +116,7 @@ exports.up = async (knex) => {
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
       table
-        .integer('location_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('locations')
-        .onDelete('CASCADE')
-        .onUpdate('CASCADE')
+        .string('locations_where_sold', 128).notNullable
     })
 
 }

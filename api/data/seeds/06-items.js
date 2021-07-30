@@ -8,6 +8,7 @@ exports.seed = function (knex) {
             description: "Delicious milk from cows that roam free",
             suggested_price_id: 3,
             category_id: 5,
+            location_id: 1,
             user_id: 2
         },
 
@@ -17,6 +18,7 @@ exports.seed = function (knex) {
             description: "Raw Honey",
             suggested_price_id: 2,
             category_id: 12,
+            location_id: 1,
             user_id: 2
         },
 
